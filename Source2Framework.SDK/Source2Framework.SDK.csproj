@@ -2,14 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+	<EnableDynamicLoading>true</EnableDynamicLoading>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	<EnablePackageValidation>true</EnablePackageValidation>
     <Title>Source2Framework SDK</Title>
     <Description>SDK for the Source2Framework CounterStrikeSharp Plugin.</Description>
     <PackageProjectUrl>https://github.com/Source2Framework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Source2Framework</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ApiCompatValidateAssemblies>true</ApiCompatValidateAssemblies>
+    <ApiCompatContractAssembly>.\ApiCompat\v1.dll</ApiCompatContractAssembly>
+	<!-- <GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile> -->
   </PropertyGroup>
 
   <ItemGroup>
