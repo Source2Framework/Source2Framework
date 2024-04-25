@@ -55,7 +55,7 @@ jobs:
         run: dotnet restore Source2Framework.SDK/Source2Framework.SDK.csproj
 
       - name: Build SDK v${{ env.BUILD_NUMBER }}
-        run: dotnet build Source2Framework.SDK/Source2Framework.SDK.csproj -c Release /p:Version=1.0.0 --output ${{github.workspace}}/artifacts/SDK
+        run: dotnet build Source2Framework.SDK/Source2Framework.SDK.csproj -c Release /p:Version=1.0.${{ env.BUILD_NUMBER }} --output ${{github.workspace}}/artifacts/SDK
 
       - name: Pack SDK
         run:  dotnet pack Source2Framework.SDK/Source2Framework.SDK.csproj -c Release /p:Version=1.0.${{ env.BUILD_NUMBER }} --output ${{github.workspace}}/artifacts/SDK
