@@ -153,6 +153,6 @@ jobs:
           files: |
             Source2Framework-build-${{ needs.setup.outputs.buildnumber }}-${{ env.GITHUB_SHA_SHORT }}.zip
 
-      #- name: Publish NuGet package
-      #  run: |
-      #    dotnet nuget push artifact/SDK/Source2Framework.SDK.1.0.${{ needs.setup.outputs.buildnumber }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Publish NuGet package
+        run: |
+          dotnet nuget push artifact/SDK/Source2Framework.SDK.1.0.${{ needs.setup.outputs.buildnumber }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
