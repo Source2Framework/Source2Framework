@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Source2Framework.SDK\Source2Framework.SDK.csproj">
       <Private>False</Private>
+      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
     </ProjectReference>
   </ItemGroup>
 
