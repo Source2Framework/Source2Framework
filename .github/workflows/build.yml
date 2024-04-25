@@ -1,0 +1,158 @@
+name: Build & Publish
+
+on:
+  push:
+    paths-ignore:
+      - "docfx/**"
+      -  "*.md"
+    branches: ["master", "dev"]
+  pull_request:
+    branches: ["master", "dev"]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  Setup:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      buildnumber: ${{ steps.buildnumber.outputs.build_number }}
+    steps:
+      - name: Generate build number
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        id: buildnumber
+        uses: onyxmueller/build-tag-number@v1
+        with:
+          token: ${{secrets.API_TOKEN}}
+
+  Build_SDK:
+    needs: [Setup]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare environment
+        shell: bash
+        run: echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Fallback build number
+        if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/master' }}
+        shell: bash
+        run: echo "BUILD_NUMBER=0" >> $GITHUB_ENV
+
+      - name: Main build number
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        run: echo "BUILD_NUMBER=${{ needs.setup.outputs.buildnumber }}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore SDK dependencies
+        run: dotnet restore Source2Framework.SDK/Source2Framework.SDK.csproj
+
+      - name: Build SDK v${{ env.BUILD_NUMBER }}
+        run: dotnet build Source2Framework.SDK/Source2Framework.SDK.csproj -c Release /p:Version=1.0.${{ env.BUILD_NUMBER }} --output ${{github.workspace}}/artifacts/SDK
+
+      - name: Pack SDK
+        run:  dotnet pack Source2Framework.SDK/Source2Framework.SDK.csproj -c Release /p:Version=1.0.${{ env.BUILD_NUMBER }} --output ${{github.workspace}}/artifacts/SDK
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Source2Framework.SDK-build-${{ env.GITHUB_SHA_SHORT }}
+          path: ${{github.workspace}}/artifacts/SDK
+
+  Build_Core:
+    needs: [Setup]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare environment
+        shell: bash
+        run: echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Fallback build number
+        if: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/master' }}
+        shell: bash
+        run: echo "BUILD_NUMBER=0" >> $GITHUB_ENV
+
+      - name: Main build number
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        run: echo "BUILD_NUMBER=${{ needs.setup.outputs.buildnumber }}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Core dependencies
+        run: dotnet restore Source2Framework.Core/Source2Framework.Core.csproj
+
+      - name: Build Core v${{ env.BUILD_NUMBER }}
+        run: dotnet build Source2Framework.Core/Source2Framework.Core.csproj -c Release /p:Version=1.0.${{ env.BUILD_NUMBER }} --output ${{github.workspace}}/artifacts/Core
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Source2Framework.Core-build-${{ env.GITHUB_SHA_SHORT }}
+          path: ${{github.workspace}}/artifacts/Core
+
+  Publish:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    permissions:
+      contents: write
+    needs: [Setup, Build_SDK, Build_Core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare environment
+        shell: bash
+        run: echo "GITHUB_SHA_SHORT=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          name: "Source2Framework.Configs-build-${{ env.GITHUB_SHA_SHORT }}"
+          path: artifact/Configs
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Source2Framework.SDK-build-${{ env.GITHUB_SHA_SHORT }}
+          path: artifact/SDK
+
+      - name: Add SDK to Artifacts
+        run: |
+          mkdir -p build/addons/counterstrikesharp/shared/Source2Framework.SDK
+          cp -r artifact/SDK/* build/addons/counterstrikesharp/shared/Source2Framework.SDK
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: Source2Framework.Core-build-${{ env.GITHUB_SHA_SHORT }}
+          path: artifact/Core
+
+      - name: Add Core to Artifacts
+        run: |
+          mkdir -p build/addons/counterstrikesharp/plugins/Source2Framework.Core
+          cp -r artifact/Core/* build/addons/counterstrikesharp/plugins/Source2Framework.Core
+
+      - name: Add other files to Artifacts
+        run: cp -r artifact/Configs/configs/* build/addons/counterstrikesharp
+
+      - name: Zip Builds
+        run: |
+          cd build
+          zip -x '*.nupkg' -x '*.deps.json' -qq -r ../Source2Framework-build-${{ needs.setup.outputs.buildnumber }}-${{ env.GITHUB_SHA_SHORT }}.zip *
+
+      - name: Release
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.setup.outputs.buildnumber }}
+          files: |
+            Source2Framework-build-${{ needs.setup.outputs.buildnumber }}-${{ env.GITHUB_SHA_SHORT }}.zip
+
+      #- name: Publish NuGet package
+      #  run: |
+      #    dotnet nuget push artifact/SDK/Source2Framework.SDK.1.0.${{ needs.setup.outputs.buildnumber }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
