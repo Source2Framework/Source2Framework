@@ -4,7 +4,8 @@ on:
   push:
     paths-ignore:
       - "docfx/**"
-      -  "*.md"
+      - "*.md"
+      - "*.txt"
     branches: ["master", "dev"]
   pull_request:
     branches: ["master", "dev"]
