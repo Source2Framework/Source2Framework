@@ -10,6 +10,6 @@
 
         public override string ModuleAuthor => "Nexd @ Eternar";
 
-        public override string ModuleVersion => $"{API.GetVersionString()}";
+        public override string ModuleVersion => API.GetVersionString();
     }
 }
