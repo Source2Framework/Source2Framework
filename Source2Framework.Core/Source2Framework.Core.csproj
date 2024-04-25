@@ -5,7 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<SkipCopyReferences>true</SkipCopyReferences>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,10 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Source2Framework.SDK\Source2Framework.SDK.csproj">
-      <Private>False</Private>
-      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
+    <ProjectReference Include="..\Source2Framework.SDK\Source2Framework.SDK.csproj" />
   </ItemGroup>
 
   <ItemGroup>

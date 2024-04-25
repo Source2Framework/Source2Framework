@@ -1,0 +1,24 @@
+﻿{
+  "runtimeOptions": {
+    "tfm": "net8.0",
+    "rollForward": "LatestMinor",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "8.0.0"
+    },
+    "configProperties": {
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+      "System.Runtime.Loader.AssemblyDependencyResolver.EnableTracing": true
+    },
+    "assemblyBinding": {
+      "redirects": [
+        {
+          "assemblyIdentity": "Source2Framework.SDK",
+          "oldVersion": "1.0.0.0-2.0.0.0",
+          "newVersion": "1.0.0.0"
+        }
+      ]
+    }
+  }
+}
