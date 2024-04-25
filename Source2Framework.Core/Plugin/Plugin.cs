@@ -4,7 +4,6 @@
     using CounterStrikeSharp.API.Core.Attributes;
 
     using Source2Framework.Models;
-    using Source2Framework.Services.AssemblyResolver;
     using Source2Framework.Services.Framework;
 
     [MinimumApiVersion(213)]
@@ -16,14 +15,12 @@
 
         public Plugin
             (
-                AssemblyResolverService assemblyResolver,
                 ServiceManager serviceManager,
                 FrameworkService frameworkService
             )
         {
             (this.ServiceManager = serviceManager).RegisterServices
             (
-                assemblyResolver,
                 frameworkService
             );
         }

@@ -2,7 +2,6 @@
 {
     using CounterStrikeSharp.API.Core;
 
-    using Source2Framework.Services.AssemblyResolver;
     using Source2Framework.Services.Framework;
     using Source2Framework.Models;
 
@@ -13,7 +12,6 @@
             // this might get located somewhere else in the future (either a service with exposing game internals, or just a different file)
             serviceCollection.AddSingleton<INetworkServerService>();
 
-            serviceCollection.AddSingleton<AssemblyResolverService>();
             serviceCollection.AddSingleton<ServiceManager>();
             serviceCollection.AddSingleton<FrameworkService>();
         }
