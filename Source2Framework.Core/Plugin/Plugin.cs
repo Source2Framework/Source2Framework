@@ -6,7 +6,7 @@
     using Source2Framework.Models;
     using Source2Framework.Services.Framework;
 
-    [MinimumApiVersion(213)]
+    [MinimumApiVersion(214)]
     public sealed partial class Plugin : BasePlugin, IPluginConfig<PluginConfig>
     {
         public required PluginConfig Config { get; set; } = new PluginConfig();
